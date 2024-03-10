@@ -12,7 +12,6 @@ type BluetoothManager struct{}
 
 func Disconnect(deviceAddress string){
 	commands := []string{
-		"agent on\n",
 		fmt.Sprintf("disconnect %s\n", deviceAddress),
 		"exit\n",
 	}
@@ -20,7 +19,6 @@ func Disconnect(deviceAddress string){
 }
 func Connect(deviceAddress string){
 	commands := []string{
-		"agent on\n",
 		fmt.Sprintf("connect %s\n", deviceAddress),
 		"exit\n",
 	}
