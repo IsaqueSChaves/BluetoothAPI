@@ -2,6 +2,7 @@ package BluetoothManager
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"io"
 	"os/exec"
@@ -10,30 +11,39 @@ import (
 
 type BluetoothManager struct{}
 
-func Disconnect(deviceAddress string){
+func Disconnect(deviceAddress string) error {
 	commands := []string{
 		fmt.Sprintf("disconnect %s\n", deviceAddress),
 		"exit\n",
 	}
-	executeBluetoothCommands(commands)
+	err := executeBluetoothCommands(commands)
+	if err != nil {
+		return errors.New(err.Error())
+	}
+	return nil
 }
-func Connect(deviceAddress string){
+
+func Connect(deviceAddress string) error {
 	commands := []string{
 		fmt.Sprintf("connect %s\n", deviceAddress),
 		"exit\n",
 	}
-	executeBluetoothCommands(commands)
+	err := executeBluetoothCommands(commands)
+	if err != nil {
+		return errors.New(err.Error())
+	}
+	return nil
 }
 
-func executeBluetoothCommands(commands []string){
+func executeBluetoothCommands(commands []string) error {
 	cmd := exec.Command("bluetoothctl")
 	stdin, err := cmd.StdinPipe()
 	if err != nil {
-		panic(err)
+		return errors.New(err.Error())
 	}
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
-		panic(err)
+		return errors.New(err.Error())
 	}
 
 	var wg sync.WaitGroup
@@ -47,23 +57,24 @@ func executeBluetoothCommands(commands []string){
 	}()
 
 	if err := cmd.Start(); err != nil {
-		panic(err)
+		return errors.New(err.Error())
 	}
 
 	for _, command := range commands {
 		_, err = io.WriteString(stdin, command)
 		if err != nil {
-			panic(err)
+			return errors.New(err.Error())
 		}
 	}
 
 	if err := stdin.Close(); err != nil {
-		panic(err)
+		return errors.New(err.Error())
 	}
 
 	wg.Wait()
 
 	if err := cmd.Wait(); err != nil {
-		panic(err)
+		return errors.New(err.Error())
 	}
+	return nil
 }
